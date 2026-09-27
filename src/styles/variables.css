@@ -1,0 +1,141 @@
+/*!
+  Design System Variables - Phase 2
+  Colors, typography, spacing, layout, borders, radius, motion
+*/
+
+/* ==================================
+   COLOR SYSTEM - Dark First
+   ================================== */
+
+/* Primary palette */
+--bg-primary: #050505;
+--bg-secondary: #0A0A0A;
+
+/* Text palette */
+--fg-primary: #F5F5F5;
+--fg-secondary: #A1A1A1;
+--fg-muted: #6F6F6F;
+
+/* Border palette */
+--border-subtle: rgba(255, 255, 255, 0.12);
+--border-strong: rgba(255, 255, 255, 0.22);
+
+/* Accent - restrained electric blue, used sparingly */
+--accent: #3b82f6;
+
+/* Background layers */
+--bg-layer: rgba(5, 5, 5, 0.8);
+
+/* ==================================
+   TYPOGRAPHY SCALE
+   ================================== */
+
+/* Font family */
+--font-sans: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+/* Heading sizes using clamp() for responsive range */
+--h1-size: clamp(4rem, 8vw, 8rem);
+--h2-size: clamp(3rem, 6vw, 5rem);
+--h3-size: clamp(2rem, 4vw, 3rem);
+--body-size: clamp(1rem, 1.5vw, 1.25rem);
+--small-size: clamp(0.875rem, 1vw, 1rem);
+--label-size: 0.875rem;
+
+/* Font weights */
+--font-weight-thin: 100;
+--font-weight-light: 300;
+--font-weight-normal: 400;
+--font-medium: 500;
+--font-weight-bold: 700;
+
+/* Line heights */
+--line-tight: 1.1;
+--line-normal: 1.6;
+--line-relaxed: 1.8;
+
+/* Letter spacing */
+--tracking-tight: -0.04em;
+--tracking-normal: 0em;
+--tracking-wide: 0.05em;
+--tracking-widest: 0.15em;
+
+/* ==================================
+   SPACING SYSTEM
+   ================================== */
+
+--space-1: 0.25rem;   /* 4px */
+--space-2: 0.5rem;    /* 8px */
+--space-3: 0.75rem;   /* 12px */
+--space-4: 1rem;      /* 16px */
+--space-5: 1.5rem;    /* 24px */
+--space-6: 2rem;      /* 32px */
+--space-7: 3rem;      /* 48px */
+--space-8: 4rem;      /* 64px */
+
+/* ==================================
+   LAYOUT SYSTEM
+   ================================== */
+
+--max-width: 1200px;
+--fluid-gap: 1.5rem;
+--section-padding: 6rem 0;
+--nav-height: 4rem;
+
+/* Container padding */
+--pad-horizontal: 1rem;
+--pad-vertical: 1rem;
+
+/* ==================================
+   BORDER & RADIUS
+   ================================== */
+
+--border-radius-sm: 4px;
+--border-radius-md: 6px;
+--border-radius-lg: 8px;
+--border-radius-full: 9999px;
+
+--border-width: 1px;
+--border-style: solid;
+
+/* ==================================
+   MOTION/TIMING
+   ================================== */
+
+--transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+--transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+--transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+/* Easing functions */
+--easing-out: cubic-bezier(0, 0, 0.2, 1);
+--easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+/* ==================================
+   BREAKPOINTS
+   ================================== */
+
+--breakpoint-mobile: 320px;
+--breakpoint-tablet: 768px;
+--breakpoint-desktop: 1024px;
+--breakpoint-large-desktop: 1440px;
+
+/* ==================================
+   BUTTON VARIANTS (reference)
+   ================================== */
+
+/* Primary button */
+--btn-primary-bg: var(--accent);
+--btn-primary-color: var(--bg-primary);
+--btn-primary-hover: rgba(var(--accent-rgb), 0.9);
+
+/* Secondary outline */
+--btn-secondary-bg: transparent;
+--btn-secondary-color: var(--fg-primary);
+--btn-secondary-border: var(--border-subtle);
+
+/* ==================================
+   FOCUS STATE
+   ================================== */
+
+--focus-outline: 2px solid var(--accent);
+--focus-outline-offset: 2px;
