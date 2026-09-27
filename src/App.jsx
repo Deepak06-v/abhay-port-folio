@@ -19,23 +19,24 @@ function App() {
   useLenisScrollTrigger();
   // Handle reduced motion for Lenis
   useReducedMotionLenis();
-  // Initialize custom cursor
-  CustomCursor();
 
   return (
-    <PageLoader duration={1000}>
-      <>
-        <Navbar />
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <AIWorkflow />
-        <Journey />
-        <Contact />
-        <Footer />
-      </>
-    </PageLoader>
+    <>
+      <PageLoader duration={1000}>
+        <>
+          <Navbar />
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <AIWorkflow />
+          <Journey />
+          <Contact />
+          <Footer />
+        </>
+      </PageLoader>
+      <CustomCursor />
+    </>
   );
 }
 

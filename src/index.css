@@ -20,9 +20,13 @@ html {
 
 :root {
   --bg: #0a0a0f;
+  --bg-primary: #0a0a0f;
   --fg: #fafafa;
+  --fg-primary: #fafafa;
+  --fg-secondary: #737373;
   --muted: #737373;
   --border: #2a2a3a;
+  --border-subtle: #2a2a3a;
   --accent: #ffffff;
   --accent-rgba: rgba(255, 255, 255, 0.12);
 }
@@ -94,7 +98,7 @@ button, input, textarea {
     pointer-events: none;
     z-index: 9999;
     transition: background 0.1s ease, transform 0.1s ease;
-    mix-blend-mode: difference;
+    mix-blend-mode: normal;
   }
 
   .cursor-outer {

@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const PageLoader = ({ duration = 800 }) => {
+const PageLoader = ({ duration = 800, children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const mountedRef = useRef(true);
 
@@ -38,22 +38,19 @@ const PageLoader = ({ duration = 800 }) => {
     };
   }, [duration]);
 
-  if (!isLoading) {
-    return null;
-  }
-
-  // Minimal loader content
-  return (
-    <div
-      className="page-loader"
-      aria-label="Page loading"
-      role="status"
-    >
-      <div className="page-loader-content">
-        <span className="page-loader-text">ABHAY</span>
-      </div>
-    </div>
-  );
+  return isLoading ? (
+     <div
+       className="page-loader"
+       aria-label="Page loading"
+       role="status"
+     >
+       <div className="page-loader-content">
+         <span className="page-loader-text">ABHAY</span>
+       </div>
+     </div>
+   ) : (
+     <>{children}</>
+   );
 };
 
 export default PageLoader;
