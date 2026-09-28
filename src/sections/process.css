@@ -1,0 +1,147 @@
+/*!
+  Process — accordion built from native button + region semantics.
+
+  Rows are separated by 2px rules and the open row is inverted, so the
+  current step is legible from the shape of the block rather than only from
+  a colour change.
+*/
+
+.process__list {
+  border-top: var(--bw-thick) solid var(--border-fg);
+}
+
+.process__item {
+  border-bottom: var(--bw-thick) solid var(--border-fg);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+
+.process__item.is-open {
+  background: var(--bg-elevated);
+}
+
+/* --- Trigger ------------------------------------------------------ */
+
+.process__trigger {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+  padding: var(--space-5) 0;
+  text-align: left;
+  color: var(--fg-muted);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .process__trigger:hover {
+    color: var(--fg);
+  }
+}
+
+.process__item.is-open .process__trigger {
+  color: var(--fg);
+}
+
+.process__number {
+  display: grid;
+  place-items: center;
+  min-width: 1.75rem;
+  height: 1.5rem;
+  padding-inline: 0.3rem;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  color: var(--fg-inverse);
+  background: var(--fg);
+  flex: none;
+}
+
+.process__item.is-open .process__number {
+  color: var(--fg-inverse);
+  background: var(--accent);
+}
+
+.process__title {
+  font-size: clamp(1.25rem, 3.6vw, 1.75rem);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--track-heading);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* Plus that rotates into a minus. */
+.process__icon {
+  position: relative;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex: none;
+}
+
+.process__icon span {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: var(--bw-thick);
+  background: currentColor;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.process__icon span:first-child {
+  transform: translateY(-50%);
+}
+
+.process__icon span:last-child {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.process__item.is-open .process__icon span:last-child {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+/* --- Panel -------------------------------------------------------- */
+
+/* Height is animated via grid-template-rows, so no measuring in JS. */
+.process__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-slow) var(--ease-out);
+}
+
+.process__panel > .process__desc {
+  overflow: hidden;
+}
+
+.process__item.is-open .process__panel {
+  grid-template-rows: 1fr;
+}
+
+.process__desc {
+  max-width: 62ch;
+  padding-left: calc(var(--fs-label) + var(--space-5));
+  color: var(--fg-muted);
+  text-wrap: pretty;
+}
+
+.process__item.is-open .process__desc {
+  padding-bottom: var(--space-6);
+}
+
+@media (min-width: 48rem) {
+  .process__trigger {
+    padding-block: var(--space-6);
+  }
+
+  .process__desc {
+    max-width: 52ch;
+    /* Align with the title, not the number. */
+    padding-left: calc(var(--fs-label) + var(--space-5));
+  }
+}
+
+/* Motion is decorative here; collapse instantly for reduced-motion users. */
+@media (prefers-reduced-motion: reduce) {
+  .process__panel {
+    transition: none;
+  }
+}

@@ -1,67 +1,72 @@
 /*!
-  Footer Component - Phase 11
-  Premium footer completing the portfolio
+  Footer — oversized wordmark, quiet metadata.
+
+  Social links with no URL are dropped rather than rendered inert.
 */
 
-import React from 'react';
-import footerData from '../data/footer';
+import footer from '../data/footer';
+import { scrollToSection } from '../lib/scroll';
+import './footer.css';
 
-function Footer() {
-  const { primaryIdentity, secondaryIdentity, statement, navigation, social, copyright } = footerData;
-
-  const hasSocialLinks = social.some((item) => item.url);
+export default function Footer() {
+  // Drop channels that have no real URL behind them.
+  const social = footer.social.filter((item) => Boolean(item.url));
 
   return (
-    <footer className="footer" aria-label="Footer navigation">
-      <div className="footer-container">
-        <div className="footer-top">
-          <span className="footer-label">{primaryIdentity}</span>
-          <p className="footer-secondary">{secondaryIdentity}</p>
-          <p className="footer-statement">{statement}</p>
+    <footer className="footer" id="colophon">
+      <div className="container">
+        <div className="footer__top">
+          <div className="footer__identity">
+            <p className="footer__name">{footer.primaryIdentity}</p>
+            <p className="footer__role mono">{footer.secondaryIdentity}</p>
+          </div>
+
+          <nav className="footer__nav" aria-label="Footer">
+            <ul className="footer__nav-list" role="list">
+              {footer.navigation.map((item) => (
+                <li key={item.id}>
+                  <a
+                    className="footer__nav-link"
+                    href={item.hash}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection(item.id);
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
 
-        <nav className="footer-nav" aria-label="Footer navigation links">
-          <ul className="footer-nav-links">
-            {navigation.map((link) => (
-              <li key={link.id} className="footer-nav-item">
-                <a href={link.hash} className="footer-nav-link">
-                  {link.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {/* Oversized wordmark; clipped by the footer's bottom edge. */}
+        <p className="footer__wordmark" aria-hidden="true">
+          {footer.primaryIdentity}
+        </p>
 
-        {hasSocialLinks && (
-          <div className="footer-social" aria-label="Social links">
-            <ul className="footer-social-links">
-              {social.map((item) => {
-                if (!item.url) return null;
-                const [domain] = item.url.split('/');
-                const isExternal = !['localhost', '127.0.0.1'].includes(domain);
-                return (
-                  <li key={item.key} className="footer-social-link">
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel={isExternal ? "noopener noreferrer" : undefined}
-                      aria-label={item.label}
-                    >
-                      {item.label}
-                    </a>
-                  </li>
-                );
-              })}
+        <div className="footer__bottom">
+          <p className="footer__copyright mono">{footer.copyright}</p>
+
+          {social.length > 0 && (
+            <ul className="footer__social" role="list">
+              {social.map((item) => (
+                <li key={item.key}>
+                  <a
+                    className="footer__social-link"
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
             </ul>
-          </div>
-        )}
-
-        <div className="footer-bottom">
-          <p className="footer-copyright">{copyright}</p>
+          )}
         </div>
       </div>
     </footer>
   );
 }
-
-export default Footer;

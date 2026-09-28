@@ -1,141 +1,223 @@
 /*!
-  Design System Variables - Phase 2
-  Colors, typography, spacing, layout, borders, radius, motion
+  Design tokens — single source of truth.
+
+  Direction: neo-brutalist / editorial-tech. Near-black ground, one electric
+  yellow accent, typography as the primary visual element, and 2–3px solid
+  borders doing the structural work instead of shadow, blur or radius.
+  Radii are 0. Hover states are near-instant. Nothing is decorative unless it
+  also communicates state.
 */
 
-/* ==================================
-   COLOR SYSTEM - Dark First
-   ================================== */
+:root {
+  /* ==================================
+     COLOR — SURFACES
+     Flat, unshaded darks. Brutalism wants
+     visibly distinct blocks, not gradients
+     pretending to be depth.
+     ================================== */
+  --bg: #09090b;
+  --bg-elevated: #101012;
+  --surface: #16181d;
+  --surface-2: #1c1e24;
+  --surface-3: #23262d;
+  --surface-hover: #1e2127;
+  --surface-active: #2a2e36;
 
-/* Primary palette */
---bg-primary: #050505;
---bg-secondary: #0A0A0A;
+  /* ==================================
+     COLOR — TYPE
+     ================================== */
+  --fg: #f2f0ec;          /* 17.4:1 on --bg */
+  --fg-muted: #a8a49c;    /*  7.4:1 on --bg */
+  --fg-subtle: #94918a;   /*  6.3:1 on --bg, 4.8:1 on --surface-3 (WCAG AA at 11px) */
+  --fg-inverse: #09090b;
 
-/* Text palette */
---fg-primary: #F5F5F5;
---fg-secondary: #A1A1A1;
---fg-muted: #6F6F6F;
+  /* ==================================
+     COLOR — ACCENT
+     One electric yellow, used as a block
+     fill or a solid line. Never a soft wash
+     doing decorative work.
+     ================================== */
+  --accent: #f5e600;
+  --accent-bright: #fff220;
+  --accent-deep: #c9be00;
+  --accent-wash: rgba(245, 230, 0, 0.09);
+  --accent-line: rgba(245, 230, 0, 0.38);
+  --accent-rgb: 245, 230, 0;
 
-/* Border palette */
---border-subtle: rgba(255, 255, 255, 0.12);
---border-strong: rgba(255, 255, 255, 0.22);
+  /* ==================================
+     COLOR — LINES
+     Hairlines for internal separation,
+     2–3px for anything structural.
+     ================================== */
+  --border: rgba(242, 240, 236, 0.13);
+  --border-strong: rgba(242, 240, 236, 0.26);
+  --border-fg: rgba(242, 240, 236, 0.55);
+  --border-accent: var(--accent-line);
 
-/* Accent - restrained electric blue, used sparingly */
---accent: #3b82f6;
+  /* Faint grid used behind poster areas. */
+  --grid-line: rgba(242, 240, 236, 0.05);
 
-/* Background layers */
---bg-layer: rgba(5, 5, 5, 0.8);
+  /* ==================================
+     TYPOGRAPHY
+     Inter for display/UI, Fira Code for
+     technical metadata. The display scale is
+     deliberately oversized — type carries the
+     composition, not the surrounding boxes.
+     ================================== */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-/* ==================================
-   TYPOGRAPHY SCALE
-   ================================== */
+  --fs-display: clamp(3.5rem, 11vw, 10rem);
+  --fs-h1: clamp(2.75rem, 6.4vw, 5.5rem);
+  --fs-h2: clamp(2.5rem, 6vw, 5.5rem);
+  --fs-h3: clamp(1.5rem, 2.6vw, 2.25rem);
+  --fs-h4: clamp(1.125rem, 1.5vw, 1.3125rem);
+  --fs-lead: clamp(1.0625rem, 1.35vw, 1.25rem);
+  --fs-body: clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --fs-sm: 0.875rem;
+  --fs-xs: 0.8125rem;
+  --fs-label: 0.6875rem;
 
-/* Font family */
---font-sans: "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
---font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --lh-display: 0.88;
+  --lh-tight: 1.02;
+  --lh-snug: 1.14;
+  --lh-normal: 1.55;
+  --lh-relaxed: 1.7;
 
-/* Heading sizes using clamp() for responsive range */
---h1-size: clamp(4rem, 8vw, 8rem);
---h2-size: clamp(3rem, 6vw, 5rem);
---h3-size: clamp(2rem, 4vw, 3rem);
---body-size: clamp(1rem, 1.5vw, 1.25rem);
---small-size: clamp(0.875rem, 1vw, 1rem);
---label-size: 0.875rem;
+  /* Heavy negative tracking on display, wide on small caps. */
+  --track-display: -0.045em;
+  --track-heading: -0.03em;
+  --track-body: -0.005em;
+  --track-label: 0.12em;
 
-/* Font weights */
---font-weight-thin: 100;
---font-weight-light: 300;
---font-weight-normal: 400;
---font-medium: 500;
---font-weight-bold: 700;
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-black: 800;
 
-/* Line heights */
---line-tight: 1.1;
---line-normal: 1.6;
---line-relaxed: 1.8;
+  /* ==================================
+     SPACING — 4px base rhythm
+     ================================== */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 4rem;
+  --space-10: 5rem;
+  --space-11: 6.5rem;
+  --space-12: 8rem;
 
-/* Letter spacing */
---tracking-tight: -0.04em;
---tracking-normal: 0em;
---tracking-wide: 0.05em;
---tracking-widest: 0.15em;
+  /* Vertical rhythm between full-bleed sections. Stepped per breakpoint rather
+     than clamped against vh, so every value lands on the 4px base and short
+     viewports never collapse the gap. The breakpoint overrides are below. */
+  --section-y: 4.5rem;
+  --section-y-lg: 6rem;
 
-/* ==================================
-   SPACING SYSTEM
-   ================================== */
+  /* ==================================
+     LAYOUT
+     ================================== */
+  --container: 84rem;
+  --container-narrow: 52rem;
+  --measure: 62ch;          /* readable prose line length */
+  --gutter: clamp(1.25rem, 3.2vw, 3rem);
+  --nav-h: 4.25rem;
 
---space-1: 0.25rem;   /* 4px */
---space-2: 0.5rem;    /* 8px */
---space-3: 0.75rem;   /* 12px */
---space-4: 1rem;      /* 16px */
---space-5: 1.5rem;    /* 24px */
---space-6: 2rem;      /* 32px */
---space-7: 3rem;      /* 48px */
---space-8: 4rem;      /* 64px */
+  /* ==================================
+     SHAPE
+     Zero radius everywhere except the one
+     reserved pill token, which is only for
+     status and metadata.
+     ================================== */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-pill: 999px;
 
-/* ==================================
-   LAYOUT SYSTEM
-   ================================== */
+  /* Structural border weights, used as design elements. */
+  --bw-hair: 1px;
+  --bw-thick: 2px;
+  --bw-heavy: 3px;
 
---max-width: 1200px;
---fluid-gap: 1.5rem;
---section-padding: 6rem 0;
---nav-height: 4rem;
+  /* Hard offset distance for the brutalist press effect. */
+  --offset: 5px;
+  --offset-sm: 3px;
 
-/* Container padding */
---pad-horizontal: 1rem;
---pad-vertical: 1rem;
+  /* ==================================
+     MOTION
+     Brutalism wants state changes to read as
+     immediate, so transitions are short and
+     mostly on transform/opacity.
+     ================================== */
+  --dur-instant: 80ms;
+  --dur-fast: 110ms;
+  --dur-base: 160ms;
+  --dur-slow: 260ms;
+  --dur-reveal: 520ms;
 
-/* ==================================
-   BORDER & RADIUS
-   ================================== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);       /* expo-ish, for entrances */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);  /* for state swaps */
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
---border-radius-sm: 4px;
---border-radius-md: 6px;
---border-radius-lg: 8px;
---border-radius-full: 9999px;
+  /* ==================================
+     ELEVATION
+     Hard-edged offset shadows only. No blur.
+     ================================== */
+  --shadow-sm: 0 0 0 1px var(--border);
+  --shadow-offset: 6px 6px 0 0 var(--accent);
+  --shadow-offset-sm: 3px 3px 0 0 var(--accent);
+  --shadow-offset-fg: 6px 6px 0 0 var(--fg);
 
---border-width: 1px;
---border-style: solid;
+  /* ==================================
+     LAYERS
+     ================================== */
+  --z-base: 1;
+  --z-sticky: 100;
+  --z-nav: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-cursor: 900;
 
-/* ==================================
-   MOTION/TIMING
-   ================================== */
+  /* ==================================
+     BREAKPOINTS (reference)
+     ================================== */
+  --bp-sm: 40rem;    /* 640px */
+  --bp-md: 48rem;    /* 768px */
+  --bp-lg: 64rem;    /* 1024px */
+  --bp-xl: 80rem;    /* 1280px */
+}
 
---transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
---transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
---transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+/* Section rhythm steps up with the viewport. All values are 4px multiples. */
+@media (min-width: 48rem) {
+  :root {
+    --section-y: 5.5rem;
+    --section-y-lg: 7.5rem;
+  }
+}
 
-/* Easing functions */
---easing-out: cubic-bezier(0, 0, 0.2, 1);
---easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+@media (min-width: 64rem) {
+  :root {
+    --section-y: 6.5rem;
+    --section-y-lg: 9rem;
+  }
+}
 
-/* ==================================
-   BREAKPOINTS
-   ================================== */
+@media (min-width: 80rem) {
+  :root {
+    --section-y: 8rem;
+    --section-y-lg: 11rem;
+  }
+}
 
---breakpoint-mobile: 320px;
---breakpoint-tablet: 768px;
---breakpoint-desktop: 1024px;
---breakpoint-large-desktop: 1440px;
-
-/* ==================================
-   BUTTON VARIANTS (reference)
-   ================================== */
-
-/* Primary button */
---btn-primary-bg: var(--accent);
---btn-primary-color: var(--bg-primary);
---btn-primary-hover: rgba(var(--accent-rgb), 0.9);
-
-/* Secondary outline */
---btn-secondary-bg: transparent;
---btn-secondary-color: var(--fg-primary);
---btn-secondary-border: var(--border-subtle);
-
-/* ==================================
-   FOCUS STATE
-   ================================== */
-
---focus-outline: 2px solid var(--accent);
---focus-outline-offset: 2px;
+/* Coarse pointers have no hover and no custom cursor. */
+@media (pointer: coarse) {
+  :root {
+    --dur-fast: 80ms;
+    --dur-base: 110ms;
+  }
+}
