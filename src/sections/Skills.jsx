@@ -1,105 +1,53 @@
 /*!
-  Skills Section - Phase 6
-  Premium interactive tech stack section
+  Skills — a bordered spec sheet.
+
+  Distinct from every other section on purpose: no prose, no cards. Each
+  capability group is a full-width row separated by 2px rules, with the
+  technologies laid out as a square inventory. It reads as a parts table,
+  which is what a stack actually is.
 */
 
-import React from 'react';
-import { useScrollReveal } from '../hooks/useScrollReveal';
-import skillsData from '../data/skills';
+import { useReveal } from '../hooks/useReveal';
+import skills from '../data/skills';
 import './skills.css';
 
-function Skills() {
-  const [focusedTech, setFocusedTech] = React.useState(null);
-  const [reducedMotion, setReducedMotion] = React.useState(
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-
-  React.useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = (e) => setReducedMotion(e.matches);
-    setReducedMotion(mq.matches);
-    mq.addEventListener('change', handleChange);
-    return () => mq.removeEventListener('change', handleChange);
-  }, []);
-
-  const handleTechMouseEnter = (tech) => {
-    if (!reducedMotion) {
-      setFocusedTech(tech);
-    }
-  };
-
-  const handleTechMouseLeave = () => {
-    setFocusedTech(null);
-  };
-
-  const handleTechClick = (tech) => {
-    setFocusedTech(tech);
-  };
-
-  const { isVisible: headerVisible } = useScrollReveal({
-    distance: '0px',
-    origin: 'top',
-    threshold: 0.2,
-    once: true,
-  });
-
-  useEffect(() => {
-    if (reducedMotion) {
-      return;
-    }
-    const skillsHeader = document.querySelector('.skills-header');
-    if (skillsHeader) {
-      skillsHeader.style.animationPlayState = headerVisible ? 'running' : 'paused';
-    }
-  }, [headerVisible, reducedMotion]);
+export default function Skills() {
+  const scopeRef = useReveal();
+  const groups = Object.entries(skills);
 
   return (
     <section
+      className="section skills"
       id="skills"
-      className="skills"
-      aria-labelledby="skills-heading"
-      role="region"
+      ref={scopeRef}
+      aria-labelledby="skills-title"
     >
-      <div className="skills-container">
-        <div className="skills-header">
-          <span className="skills-label">TECH STACK</span>
-          <h2 id="skills-heading" className="skills-heading">
-            TOOLS I BUILD WITH
+      <div className="container">
+        <header className="skills__header">
+          <span className="tech-label" data-reveal="up">
+            <span className="tech-label__index">04</span>
+            Stack
+          </span>
+          <h2 className="skills__title" id="skills-title" data-reveal="up">
+            The tools, <span className="skills__title-accent">plainly listed</span>
           </h2>
-          <p className="skills-desc">
-            Technologies and tools I use to design, develop, test, and iterate
-            on modern web experiences.
-          </p>
-        </div>
+        </header>
 
-        <div className="skills-categories">
-          {Object.entries(skillsData).map(([categoryKey, category], catIndex) => (
-            <div
-              key={catIndex}
-              className="skills-category"
-              role="group"
-              aria-label={category.label}
-            >
-              <span className="skills-category-label" onClick={() => {}}>
-                {category.label}
-              </span>
-              <div className="skills-tech-grid">
-                {category.technologies.map((tech, techIndex) => (
-                  <div
-                    key={techIndex}
-                    className="skills-tech-item"
-                    role="button"
-                    tabIndex={0}
-                    onMouseEnter={() => handleTechMouseEnter(tech)}
-                    onMouseLeave={handleTechMouseLeave}
-                    onFocus={() => handleTechMouseEnter(tech)}
-                    onBlur={() => handleTechMouseLeave()}
-                    onClick={() => handleTechClick(tech)}
-                  >
-                    <span className="skills-tech-name">{tech}</span>
-                  </div>
-                ))}
+        <div className="skills__sheet" data-reveal="up">
+          {groups.map(([key, group], i) => (
+            <div className="skills__row" key={key}>
+              <div className="skills__row-key">
+                <span className="mono">{String(i + 1).padStart(2, '0')}</span>
+                <h3 className="skills__row-label mono">{group.label}</h3>
               </div>
+
+              <ul className="skills__items" role="list">
+                {group.technologies.map((tech) => (
+                  <li className="tag tag--block" key={tech}>
+                    {tech}
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
@@ -107,5 +55,3 @@ function Skills() {
     </section>
   );
 }
-
-export default Skills;

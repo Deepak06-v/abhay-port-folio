@@ -1,206 +1,108 @@
 /*!
-  Custom Cursor - Phase 13
-  Premium custom cursor with magnetic interactions
+  Custom cursor — ONE pointer coordinate, ONE controller.
+
+  The original build positioned the dot and the ring as independent
+  elements, each translating itself from the same event. Any lag or easing
+  mismatch between the two made them drift apart.
+
+  Here there is a single root element carrying the pointer position, and the
+  ring + dot are children centred on that root's origin. They are aligned by
+  construction, not by arithmetic: the root is the only thing that moves, so
+  drift is structurally impossible.
+
+  Division of labour:
+    root  -> position, written once per pointermove
+    ring  -> scale / colour, CSS-transitioned
+    dot   -> scale / colour, CSS-transitioned
+
+  No RAF loop and no second animation engine: the browser's own compositor
+  handles the movement, and CSS handles the state changes.
 */
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { prefersReducedMotion } from '../lib/motion';
+import './cursor.css';
 
-// Detect if pointer is fine (desktop) or coarse (touch)
-const isFinePointer = typeof window !== 'undefined' ? window.matchMedia('(pointer: fine)').matches : false;
+const INTERACTIVE =
+  'a, button, [role="button"], input, textarea, select, summary, [tabindex]:not([tabindex="-1"])';
+const TEXTUAL = 'p, h1, h2, h3, h4, li, dd, .prose, .lede, .journey__desc';
 
-// Detect reduced motion preference
-const reducedMotion = typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : { matches: false };
-
-export function CustomCursor() {
-  // Cursor refs
-  const innerRef = useRef(null);
-  const outerRef = useRef(null);
-
-  // Mouse position tracking
-  const mouseX = useRef(0);
-  const mouseY = useRef(0);
-
-  // Cursor position state (using refs to avoid React re-renders)
-  const cursorX = useRef(0);
-  const cursorY = useRef(0);
-
-  // Animation frame ID
-  const animId = useRef(0);
-
-  // Magnetic state
-  const magneticRef = useRef(null); // Currently focused magnetic element
-  const magneticOriginalPos = useRef({ x: 0, y: 0 }); // Original position (left/top)
-
-  // Initialize DOM elements
+export default function CustomCursor() {
   useEffect(() => {
-    if (isFinePointer && !reducedMotion.matches) {
-      // Create inner dot
-      const inner = document.createElement('div');
-      inner.className = 'cursor-inner';
-      inner.setAttribute('role', 'status');
-      inner.setAttribute('aria-label', 'Custom cursor inner dot');
-      innerRef.current = inner;
-      document.body.appendChild(inner);
+    // Touch devices have no hover and no meaningful pointer position.
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    if (prefersReducedMotion()) return;
 
-      // Create outer ring
-      const outer = document.createElement('div');
-      outer.className = 'cursor-outer';
-      outer.setAttribute('role', 'status');
-      outer.setAttribute('aria-label', 'Custom cursor outer ring');
-      outerRef.current = outer;
-      document.body.appendChild(outer);
+    const root = document.createElement('div');
+    root.className = 'cursor-root';
+    root.setAttribute('aria-hidden', 'true');
 
-      // Mouse move handler
-      const handleMouseMove = (e) => {
-        mouseX.current = e.clientX;
-        mouseY.current = e.clientY;
-      };
+    const ring = document.createElement('span');
+    ring.className = 'cursor-ring';
 
-      window.addEventListener('mousemove', handleMouseMove);
+    const dot = document.createElement('span');
+    dot.className = 'cursor-dot';
 
-      // Check if element is interactive (links, buttons, or[data-magnetic])
-      const isInteractiveElement = (el) => {
-        return (
-          el.tagName === 'A' ||
-          el.tagName === 'BUTTON' ||
-          el.hasAttribute('data-magnetic') ||
-          el.classList.contains('nav-link') ||
-          el.classList.contains('footer-nav-link') ||
-          el.classList.contains('project-github') ||
-          el.classList.contains('project-live') ||
-          el.classList.contains('cta-button')
-        );
-      };
+    // Nesting the dot inside the ring is the guarantee: they share one origin.
+    ring.append(dot);
+    root.append(ring);
+    document.body.append(root);
 
-      // Magnetic effect logic
-      const magneticElements = new Map();
+    const html = document.documentElement;
+    html.classList.add('has-cursor');
 
-      const enableMagnetic = (el) => {
-        if (magneticElements.has(el)) return;
-        
-        const rect = el.getBoundingClientRect();
-        magneticOriginalPos.current = {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        };
+    /* The single coordinate state. Everything else derives from it. */
+    const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
-        magneticElements.set(el, {
-          el,
-          originalX: magneticOriginalPos.current.x,
-          originalY: magneticOriginalPos.current.y,
-        });
+    const apply = () => {
+      root.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0)`;
+    };
 
-        // Apply mouseenter/leave to the element
-        el.addEventListener('mouseenter', () => {
-          magneticRef.current = el;
-        });
+    const onMove = (event) => {
+      // clientX/clientY only — never pageX/Y mixed with scroll offsets.
+      pointer.x = event.clientX;
+      pointer.y = event.clientY;
+      apply();
+      html.classList.add('cursor-visible');
+    };
 
-        el.addEventListener('mouseleave', () => {
-          magneticRef.current = null;
-          // Reset position with animation
-          if (magneticOriginalPos.current) {
-            el.style.transition = 'transform 0.3s ease';
-            el.style.transform = `translate(${magneticOriginalPos.current.x - rect.width / 2}px, ${magneticOriginalPos.current.y - rect.height / 2}px)`;
-            // Wait for animation then remove transition
-            setTimeout(() => {
-              el.style.transition = '';
-            }, 300);
-          }
-        });
-      };
+    const setMode = (mode) => {
+      if (ring.dataset.mode === mode) return;
+      ring.dataset.mode = mode;
+    };
 
-      // Initialize magnetic elements
-      const magneticEls = document.querySelectorAll('[data-magnetic]');
-      magneticEls.forEach(enableMagnetic);
+    const onOver = (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest(INTERACTIVE)) setMode('link');
+      else if (target.closest(TEXTUAL)) setMode('text');
+      else setMode('');
+    };
 
-      // Animation loop
-      function animate() {
-        // Smoothly move inner dot toward pointer
-        cursorX.current += (mouseX.current - cursorX.current) * 0.2;
-        cursorY.current += (mouseY.current - cursorY.current) * 0.2;
-        innerRef.current.style.transform = `translate(${cursorX.current}px, ${cursorY.current}px)`;
+    const onLeave = () => html.classList.remove('cursor-visible');
+    const onEnter = () => html.classList.add('cursor-visible');
+    const onDown = () => html.classList.add('cursor-down');
+    const onUp = () => html.classList.remove('cursor-down');
 
-        // Outer ring with more lag
-        const outerX = cursorX.current + (mouseX.current - cursorX.current) * 0.1;
-        const outerY = cursorY.current + (mouseY.current - cursorY.current) * 0.1;
-        outerRef.current.style.transform = `translate(${outerX}px, ${outerY}px)`;
+    apply();
+    window.addEventListener('pointermove', onMove, { passive: true });
+    window.addEventListener('pointerover', onOver, { passive: true });
+    window.addEventListener('pointerdown', onDown, { passive: true });
+    window.addEventListener('pointerup', onUp, { passive: true });
+    document.addEventListener('pointerleave', onLeave);
+    document.addEventListener('pointerenter', onEnter);
 
-        // Magnetic effect: pull focused element toward pointer
-        if (magneticRef.current) {
-          const el = magneticRef.current;
-          const rect = el.getBoundingClientRect();
-          const elementCenterX = rect.left + rect.width / 2;
-          const elementCenterY = rect.top + rect.height / 2;
-
-          // Calculate direction and distance from mouse to element center
-          const deltaX = mouseX.current - elementCenterX;
-          const deltaY = mouseY.current - elementCenterY;
-
-          // Cap the magnetic strength: max 12px movement
-          const strength = 0.15; // Lower = more subtle
-          const cappedX = Math.max(-12, Math.min(12, deltaX * strength));
-          const cappedY = Math.max(-12, Math.min(12, deltaY * strength));
-
-          // Apply transform to move element
-          el.style.transform = `translate(${cappedX}px, ${cappedY}px)`;
-        } else {
-          // No magnetic element focused - reset any magnetic elements
-          magneticElements.forEach(({ el }) => {
-            el.style.transform = '';
-          });
-        }
-
-        animId.current = requestAnimationFrame(animate);
-      }
-
-      animId.current = requestAnimationFrame(animate);
-
-      // Cleanup
-      return () => {
-        window.cancelAnimationFrame(animId.current);
-        window.removeEventListener('mousemove', handleMouseMove);
-        
-        // Remove magnetic event listeners
-        if (magneticEls) {
-          magneticEls.forEach((el) => {
-            el.removeEventListener('mouseenter', () => {
-              magneticRef.current = el;
-            });
-            el.removeEventListener('mouseleave', () => {
-              magneticRef.current = null;
-            });
-          });
-        }
-        
-        magneticElements.forEach(({ el }) => {
-          el.style.transform = '';
-          el.style.transition = '';
-        });
-        magneticElements.clear();
-      };
-    } else {
-      // Hide custom cursor on touch or reduced motion
-      if (innerRef.current) innerRef.current.style.display = 'none';
-      if (outerRef.current) outerRef.current.style.display = 'none';
-    }
-  }, []);
-
-  // Cleanup on unmount
-  useEffect(() => {
     return () => {
-      if (animId.current) {
-        window.cancelAnimationFrame(animId.current);
-      }
-      if (innerRef.current) {
-        innerRef.current.remove();
-      }
-      if (outerRef.current) {
-        outerRef.current.remove();
-      }
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerover', onOver);
+      window.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointerleave', onLeave);
+      document.removeEventListener('pointerenter', onEnter);
+      root.remove();
+      html.classList.remove('has-cursor', 'cursor-visible', 'cursor-down');
     };
   }, []);
 
   return null;
-};
-
-export default CustomCursor;
+}

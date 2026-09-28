@@ -1,0 +1,134 @@
+/*!
+  Custom cursor.
+
+  Alignment is structural: .cursor-root carries the pointer position and both
+  .cursor-ring and .cursor-dot are absolutely centred on its origin. Nothing
+  here computes a position from an event, so the two can never separate.
+
+  Centring uses the standalone `translate` property, which composes with the
+  root's `transform` instead of overwriting it.
+*/
+
+.has-cursor,
+.has-cursor * {
+  cursor: none !important;
+}
+
+/* --- Root: the only element that moves ----------------------------- */
+
+.cursor-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor);
+  width: 0;
+  height: 0;
+  /* Must never intercept clicks. */
+  pointer-events: none;
+  will-change: transform;
+}
+
+.cursor-root *,
+.cursor-root *::before,
+.cursor-root *::after {
+  pointer-events: none;
+}
+
+/* --- Ring: centred on the root origin ------------------------------ */
+
+.cursor-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  translate: -50% -50%;
+  scale: 0.6;
+  border: 1px solid var(--accent-line);
+  border-radius: 50%;
+  opacity: 0;
+  transition:
+    scale var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+.cursor-visible .cursor-ring {
+  opacity: 1;
+  scale: 1;
+}
+
+/* --- Dot: also centred, nested inside the ring ---------------------- */
+
+.cursor-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  translate: -50% -50%;
+  scale: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  transition:
+    scale var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+}
+
+/* --- States -------------------------------------------------------- */
+
+.cursor-ring[data-mode='link'] {
+  scale: 1.65;
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.cursor-ring[data-mode='link'] .cursor-dot {
+  scale: 0.4;
+}
+
+.cursor-ring[data-mode='text'] {
+  scale: 0.3;
+  border-color: var(--fg-subtle);
+}
+
+.cursor-ring[data-mode='text'] .cursor-dot {
+  scale: 0.75;
+  background: var(--fg);
+}
+
+/* Press feedback. Declared last so it wins over data-mode. */
+.cursor-down .cursor-ring {
+  scale: 0.8;
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.cursor-down .cursor-dot {
+  scale: 0.6;
+}
+
+/* Scrollbars are not interactive content; the native cursor is fine there. */
+html.has-cursor {
+  scrollbar-width: none;
+}
+
+html.has-cursor::-webkit-scrollbar {
+  display: none;
+}
+
+/* Touch and reduced-motion users get the normal system cursor. */
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-root {
+    display: none;
+  }
+
+  .has-cursor,
+  .has-cursor * {
+    cursor: auto !important;
+  }
+}

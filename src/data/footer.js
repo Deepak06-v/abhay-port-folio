@@ -12,9 +12,10 @@ const footerData = {
   navigation: [
     { id: "home", label: "HOME", hash: "#home" },
     { id: "about", label: "ABOUT", hash: "#about" },
-    { id: "skills", label: "SKILLS", hash: "#skills" },
     { id: "work", label: "WORK", hash: "#work" },
     { id: "journey", label: "JOURNEY", hash: "#journey" },
+    { id: "skills", label: "STACK", hash: "#skills" },
+    { id: "process", label: "PROCESS", hash: "#process" },
     { id: "contact", label: "CONTACT", hash: "#contact" },
   ],
 

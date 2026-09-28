@@ -4,7 +4,48 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>abhay-pf</title>
+
+    <!--
+      Set before paint: motion primitives only hide content when JS is
+      running to reveal it again. Without this, no content is ever hidden.
+    -->
+    <script>
+      document.documentElement.classList.add('js');
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap"
+    />
+
+    <title>Abhay Kumar — AI-Assisted Web Developer</title>
+    <meta
+      name="description"
+      content="Abhay Kumar is a BCA 3rd-year student focused on modern web development and AI-assisted development, building practical digital products and web experiences."
+    />
+    <meta name="theme-color" content="#09090b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Abhay Kumar — AI-Assisted Web Developer" />
+    <meta
+      property="og:description"
+      content="Abhay Kumar is a BCA 3rd-year student focused on modern web development and AI-assisted development, building practical digital products and web experiences."
+    />
+    <meta property="og:type" content="website" />
+    <!-- og:image omitted: no social card asset exists in this repo yet. -->
+    <meta property="og:site_name" content="Abhay Kumar Portfolio" />
+
+    <!-- Twitter/X -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Abhay Kumar — AI-Assisted Web Developer" />
+    <meta
+      name="twitter:description"
+      content="Abhay Kumar is a BCA 3rd-year student focused on modern web development and AI-assisted development, building practical digital products and web experiences."
+    />
   </head>
   <body>
     <div id="root"></div>

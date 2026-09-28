@@ -1,62 +1,86 @@
 /*!
-  Base reset & foundation
-  - box-sizing: border-box
-  - dark mode root variables
-  - typography & line settings
-  - container width
+  Base layer — reset, element defaults, shared primitives.
+
+  Section-specific rules live next to their components. Anything used by
+  more than one section belongs here.
 */
 
-*, *::before, *::after {
+@import './styles/variables.css';
+@import './styles/typography.css';
+
+/* ==================================
+   RESET
+   ================================== */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
 html {
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-}
-
-:root {
-  --bg: #0a0a0f;
-  --bg-primary: #0a0a0f;
-  --fg: #fafafa;
-  --fg-primary: #fafafa;
-  --fg-secondary: #737373;
-  --muted: #737373;
-  --border: #2a2a3a;
-  --border-subtle: #2a2a3a;
-  --accent: #ffffff;
-  --accent-rgba: rgba(255, 255, 255, 0.12);
+  /* Anchor targets clear the fixed header. */
+  scroll-padding-top: calc(var(--nav-h) + var(--space-6));
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
-  margin: 0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  letter-spacing: 0.18px;
-  color-scheme: dark;
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--track-body);
+  font-weight: var(--fw-regular);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-synthesis-weight: none;
+  color-scheme: dark;
+  /* Lenis drives scrolling; the native smooth-scroll would fight it. */
+  overflow-x: clip;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 500;
-  line-height: 1.3;
-  color: var(--fg);
+/* Lenis owns the scroll position on <html>. */
+html.lenis,
+html.lenis body {
+  height: auto;
 }
 
-p {
-  margin: 0;
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
 }
 
 img {
-  max-width: 100%;
-  display: block;
+  height: auto;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
 }
 
 a {
@@ -64,240 +88,541 @@ a {
   text-decoration: none;
 }
 
-button, input, textarea {
-  font-family: inherit;
-  font-size: inherit;
+ul,
+ol {
+  list-style: none;
 }
 
-/* Container - responsive max width */
-.max-width {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+::selection {
+  background: var(--accent);
+  color: var(--fg-inverse);
 }
 
-@media (max-width: 1024px) {
-  .max-width {
-    padding: 0 1rem;
-  }
+/* ==================================
+   FOCUS
+   Visible for keyboards, quiet for mice.
+   ================================== */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
-/*!
-  Custom Cursor - Phase 13
-  Desktop-only custom cursor with magnetic interaction support
-*/
-
-@media (pointer: fine) {
-  /* Custom cursor elements */
-  .cursor-inner {
-    position: fixed;
-    width: 4px;
-    height: 4px;
-    background: var(--fg-primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transition: background 0.1s ease, transform 0.1s ease;
-    mix-blend-mode: normal;
-  }
-
-  .cursor-outer {
-    position: fixed;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--fg-secondary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transition: width 0.2s ease, height 0.2s ease, border 0.2s ease, transform 0.2s ease;
-  }
-
-  /* Interactive state - toggled via JavaScript */
-  .cursor-interactive .cursor-inner {
-    background: var(--accent);
-    transform: scale(1.5);
-  }
-
-  .cursor-interactive .cursor-outer {
-    width: 48px;
-    height: 48px;
-    border-color: var(--accent);
-    opacity: 0.6;
-  }
-
-  /* Reduced motion: disable custom cursor */
-  @media (prefers-reduced-motion: reduce) {
-    .cursor-inner,
-    .cursor-outer {
-      display: none !important;
-    }
-  }
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
-/* Fallback for non-fine pointers (mobile/tablet) */
-@media (pointer: coarse), (hover: none) {
-  .cursor-inner,
-  .cursor-outer {
-    display: none !important;
-  }
+/* ==================================
+   LAYOUT PRIMITIVES
+   ================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
 }
 
-/*!
-  Page Loader - Phase 15
-  Minimal lightweight page load experience
-*/
-
-.page-loader {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-primary);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s ease;
-  pointer-events: auto;
+.container--narrow {
+  max-width: var(--container-narrow);
 }
 
-.page-loader.hidden {
-  opacity: 0;
+/* Full-bleed section rhythm. Every <section> gets this baseline. */
+.section {
+  position: relative;
+  padding-block: var(--section-y);
+}
+
+.section--lg {
+  padding-block: var(--section-y-lg);
+}
+
+/* Structural rule between full-bleed sections — 2px, not a hairline. */
+.section + .section::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: var(--bw-thick);
+  background: var(--border-strong);
   pointer-events: none;
 }
 
-.page-loader-content {
-  text-align: center;
-  color: var(--fg-primary);
-  user-select: none;
+/* ==================================
+   STRUCTURAL RULES
+   Printed dividers that read as part of
+   the composition rather than as box chrome.
+   ================================== */
+
+.rule {
+  display: block;
+  width: 100%;
+  height: var(--bw-thick);
+  background: var(--border-strong);
+  border: 0;
 }
 
-.page-loader-text {
-  font-size: var(--h2-size);
-  font-weight: var(--font-weight-bold);
-  letter-spacing: var(--tracking-widest);
-  margin-bottom: var(--space-2);
+.rule--accent {
+  background: var(--accent);
 }
 
-/* Reduced motion: simpler loader */
-@media (prefers-reduced-motion: reduce) {
-  .page-loader {
-    transition: opacity 0.1s ease;
-  }
-  .page-loader-text {
-    font-size: var(--body-size);
-  }
+.rule--heavy {
+  height: var(--bw-heavy);
 }
 
-/*!
-  Background Refinement - Phase 14
-  Premium subtle background treatment
-*/
-
-/* Subtle radial lighting behind major sections */
-@media (pointer: fine) {
-  .hero {
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        80% 60% at 30% 20%,
-        rgba(59, 130, 246, 0.03) 0%,
-        transparent 50%
-      );
-      pointer-events: none;
-      z-index: 0;
-    }
-  }
-
-  .about {
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        60% 50% at 50% 30%,
-        rgba(59, 130, 246, 0.02) 0%,
-        transparent 40%
-      );
-      pointer-events: none;
-      z-index: 0;
-    }
-  }
-
-  .projects {
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        70% 40% at 50% 50%,
-        rgba(59, 130, 246, 0.025) 0%,
-        transparent 50%
-      );
-      pointer-events: none;
-      z-index: 0;
-    }
-  }
-
-  .contact {
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(
-        60% 50% at 50% 50%,
-        rgba(59, 130, 246, 0.02) 0%,
-        transparent 45%
-      );
-      pointer-events: none;
-      z-index: 0;
-    }
-  }
+.rule--fg {
+  background: var(--fg);
 }
 
-/* Extremely subtle grid texture overlay (very low opacity) */
-@media (pointer: fine) and (min-resolution: 1.5dppx) {
-  .projects::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-      linear-gradient(rgba(255, 255, 255, 0.002) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.002) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.001;
-    transition: opacity 0.3s ease;
-  }
+/* ==================================
+   TECHNICAL GRID
+   Faint square lattice used behind poster
+   areas. Decorative only.
+   ================================== */
 
-  @media (prefers-reduced-motion: reduce) {
-    .projects::before {
-      opacity: 0 !important;
-      transition: opacity 0.3s ease;
-    }
-  }
+.tech-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-line) var(--bw-hair), transparent var(--bw-hair)),
+    linear-gradient(90deg, var(--grid-line) var(--bw-hair), transparent var(--bw-hair));
+  background-size: 64px 64px;
 }
 
-/* Reduced motion: disable decorative background effects */
-@media (prefers-reduced-motion: reduce) {
-  .hero::after,
-  .about::after,
-  .projects::after,
-  .contact::after {
-    display: none !important;
-  }
-  .projects::before {
-    opacity: 0 !important;
-  }
+
+/* ==================================
+   TYPOGRAPHY PRIMITIVES
+   ================================== */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  line-height: 1;
 }
 
-/* Section whitespace separator */
-.section-separator {
+.eyebrow::before {
+  content: '';
+  width: 1.5rem;
   height: 1px;
-  background: var(--border-subtle);
-  margin: var(--space-12) 0;
+  background: var(--accent);
+  flex: none;
+}
+
+.eyebrow--bare::before {
+  display: none;
+}
+
+.lede {
+  font-size: var(--fs-lead);
+  line-height: var(--lh-relaxed);
+  color: var(--fg-muted);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+.prose {
+  max-width: var(--measure);
+  color: var(--fg-muted);
+  line-height: var(--lh-relaxed);
+  text-wrap: pretty;
+}
+
+.prose + .prose {
+  margin-top: var(--space-5);
+}
+
+/* ==================================
+   BUTTONS
+   ================================== */
+
+.btn {
+  --btn-fg: var(--fg);
+  --btn-line: var(--border-fg);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 3.25rem;
+  padding: 0 1.75rem;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--btn-fg);
+  background: transparent;
+  border: var(--bw-thick) solid var(--btn-line);
+  border-radius: 0;
+  cursor: pointer;
+  /* Hard offset, zero blur. This is the hover affordance. */
+  box-shadow: var(--offset-sm) var(--offset-sm) 0 0 transparent;
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .btn:hover {
+    color: var(--fg-inverse);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: var(--offset) var(--offset) 0 0 var(--fg);
+    transform: translate(calc(var(--offset-sm) * -1), calc(var(--offset-sm) * -1));
+  }
+
+  .btn:hover .btn__arrow {
+    transform: translateX(4px);
+  }
+}
+
+.btn:active {
+  /* Presses back into the surface. */
+  transform: translate(var(--offset-sm), var(--offset-sm));
+  box-shadow: 0 0 0 0 transparent;
+  background: var(--accent-deep);
+  border-color: var(--accent);
+  color: var(--fg-inverse);
+}
+
+/* Solid accent block — the loudest control in the system. */
+.btn--primary {
+  --btn-line: var(--accent);
+  color: var(--fg-inverse);
+  background: var(--accent);
+}
+
+@media (hover: hover) {
+  .btn--primary:hover {
+    color: var(--fg-inverse);
+    background: var(--accent-bright);
+    border-color: var(--accent-bright);
+  }
+}
+
+.btn--ghost {
+  --btn-line: var(--border-strong);
+  color: var(--fg-muted);
+  background: transparent;
+}
+
+@media (hover: hover) {
+  .btn--ghost:hover {
+    color: var(--fg-inverse);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+}
+
+/* Underline that draws in from the left. */
+.btn--ghost .btn__label {
+  position: relative;
+}
+
+.btn--ghost .btn__label::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.2em;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .btn--ghost:hover .btn__label::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+.btn__arrow {
+  flex: none;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .btn:hover .btn__arrow {
+    transform: translateX(3px);
+  }
+}
+
+/* ==================================
+   LINKS
+   ================================== */
+
+.link {
+  position: relative;
+  color: var(--fg);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -0.1em;
+  width: 100%;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--accent);
+  }
+
+  .link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+/* ==================================
+   TAGS / PILLS
+   Pill shape is reserved for metadata and
+   status. Anything structural stays square.
+   ================================== */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  line-height: 1;
+  color: var(--fg-muted);
+  padding: 0.4rem 0.7rem;
+  background: transparent;
+  border: var(--bw-hair) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .tag:hover {
+    color: var(--fg-inverse);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+}
+
+.tag--accent {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: transparent;
+}
+
+/* Square variant for stack lists where a pill row would read as noise. */
+.tag--block {
+  border-radius: 0;
+  border-width: var(--bw-thick);
+  padding: 0.45rem 0.6rem;
+}
+
+/* Overflow counter for a truncated list. */
+.tag--more {
+  color: var(--fg-inverse);
+  background: var(--fg);
+  border-color: var(--fg);
+}
+
+/* Status indicator: pill + a blinking-free solid dot. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.4rem 0.8rem 0.4rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  line-height: 1;
+  /* Accent fill, so the label must be dark: --fg here would be ~1.1:1. */
+  color: var(--fg-inverse);
+  background: var(--accent);
+  border: var(--bw-thick) solid var(--accent);
+  border-radius: var(--radius-pill);
+}
+
+.pill__dot {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  background: var(--fg-inverse);
+  border-radius: 50%;
+}
+
+.pill--outline {
+  color: var(--fg-muted);
+  background: transparent;
+  border-color: var(--border-strong);
+}
+
+.pill--outline .pill__dot {
+  background: var(--accent);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ==================================
+   LINK ARROW
+   Text button that reads as a link,
+   with an arrow that nudges on hover.
+   ================================== */
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--fg);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  min-height: 2.5rem;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.link-arrow__icon {
+  flex: none;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .link-arrow:hover {
+    color: var(--accent);
+  }
+
+  .link-arrow:hover .link-arrow__icon {
+    transform: translateX(4px);
+  }
+}
+
+/* Elements nudged by useMagnetic sit on a transform already. */
+.is-magnetic {
+  will-change: transform;
+}
+
+/* ==================================
+   MOTION PRIMITIVES
+   Elements start hidden only when JS is
+   present to reveal them (see .js class on
+   <html>), so content is never lost without it.
+   ================================== */
+
+.js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-y, 8px), 0);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+/* useReveal flips this attribute; the variant stays in data-reveal. */
+.js [data-reveal][data-reveal-state='revealed'] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+}
+
+/* Horizontal variant for staggered lists. */
+.js [data-reveal='left'] {
+  transform: translate3d(-10px, 0, 0);
+}
+
+.js [data-reveal='right'] {
+  transform: translate3d(10px, 0, 0);
+}
+
+/* Clip variant for image / panel entrances. */
+.js [data-reveal='clip'] {
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    clip-path var(--dur-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js [data-reveal='clip'][data-reveal-state='revealed'] {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Headline that rises out of a mask, one line at a time. */
+.js [data-mask] {
+  display: block;
+  overflow: hidden;
+}
+
+.js [data-mask] > * {
+  display: block;
+  transform: translate3d(0, 105%, 0);
+  transition: transform var(--dur-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js [data-mask][data-reveal-state='revealed'] > * {
+  transform: translate3d(0, 0, 0);
+}
+
+
+/* ==================================
+   SCROLL REVEAL
+   ================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scrollbar-color: var(--border-strong) var(--bg);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-fg);
+  border-radius: 0;
+  border: 3px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }

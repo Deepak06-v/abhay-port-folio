@@ -1,120 +1,46 @@
 /*!
-  SmoothScroll - Lenis + GSAP Integration
-  Phase 12: Centralized smooth scrolling and motion system
+  SmoothScroll — mounts the scroll engine for the lifetime of the app.
+
+  Kept as a component so React owns the lifecycle, while the instance and
+  the scroll helpers live in lib/scroll.js so non-React code (the cursor,
+  anchor handlers) can reach them.
 */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import {
+  initSmoothScroll,
+  destroySmoothScroll,
+  refreshScroll,
+  setScrollOffset,
+} from '../lib/scroll';
 
-import { gsap } from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
-
-let lenis = null;
-
-/**
- * Initialize Lenis once at the application level.
- * Returns the Lenis instance for potential external use.
- */
-export function useLenis() {
+export default function SmoothScroll({ children }) {
   useEffect(() => {
-    // Import Lenis dynamically to avoid SSR issues
-    let mounted = true;
+    // Match the header's real height rather than hardcoding it.
+    const header = document.querySelector('.nav');
+    const syncOffset = () =>
+      setScrollOffset(header ? header.offsetHeight + 12 : 88);
 
-    import('lenis').then(({ default: Lenis }) => {
-      // Clean up any existing instance
-      if (lenis) {
-        lenis.destroy();
-        lenis = null;
-      }
+    syncOffset();
+    const lenis = initSmoothScroll();
 
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => t,
-        direction: 'vertical',
-        gestureOrientation: 'vertical',
-        smooth: true,
-      });
+    // Layout can shift after fonts and images land; keep triggers honest.
+    const refresh = () => refreshScroll();
+    document.fonts?.ready.then(refresh);
+    window.addEventListener('load', refresh);
+    window.addEventListener('resize', refresh);
 
-      // Animation loop - connect with RAF
-      function raf(time) {
-        if (lenis) {
-          lenis.raf(time);
-        }
-        requestAnimationFrame(raf);
-      }
-      requestAnimationFrame(raf);
-
-      // Cleanup on unmount
-      return () => {
-        mounted = false;
-        if (lenis) {
-          lenis.destroy();
-          lenis = null;
-        }
-      };
-    }).catch((err) => {
-      console.error('Failed to initialize Lenis:', err);
-    });
-  }, []);
-
-  return { lenis };
-}
-
-/**
- * Global Lenis synchronization with GSAP ScrollTrigger.
- * Must be called once at the app level.
- */
-export function useLenisScrollTrigger() {
-  useEffect(() => {
-    if (!lenis) return;
-
-    // Sync Lenis with ScrollTrigger
-    lenis.on('scroll', (args) => {
-      // Update ScrollTrigger if needed
-      ScrollTrigger.update();
-    });
-
-    // Sync on resize/orientationchange
-    const handleResize = () => {
-      ScrollTrigger.update();
-    };
-    window.addEventListener('resize', handleResize);
+    // Respect the OS setting if it changes mid-session.
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onMotionChange = () => lenis?.resize();
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('load', refresh);
+      window.removeEventListener('resize', refresh);
+      motionQuery.removeEventListener('change', onMotionChange);
+      destroySmoothScroll();
     };
   }, []);
-}
 
-/**
- * Stop Lenis smooth scrolling when reduced motion is preferred.
- * Call this in a useEffect when prefers-reduced-motion changes.
- */
-export function useReducedMotionLenis() {
-  const [reducedMotion, setReducedMotion] = React.useState(
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = (e) => setReducedMotion(e.matches);
-    setReducedMotion(mq.matches);
-    mq.addEventListener('change', handleChange);
-    return () => mq.removeEventListener('change', handleChange);
-  }, []);
-
-  // If reduced motion, disable Lenis smooth scrolling
-  // by setting the lenis latency to 0 or destroying the instance
-  React.useEffect(() => {
-    if (reducedMotion && lenis) {
-      // dramatically reduce smooth scrolling speed
-      lenis.options.duration = 0.01;
-      lenis.options.easing = (t) => t;
-    } else if (lenis) {
-      // restore normal duration
-      lenis.options.duration = 1.2;
-      lenis.options.easing = (t) => t;
-    }
-  }, [reducedMotion, lenis]);
+  return children;
 }

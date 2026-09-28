@@ -1,0 +1,82 @@
+/*!
+  SectionHeader — shared section preamble layout.
+
+  The meta row is a technical micro-label (`01 / ABOUT`) closed off by a rule
+  that runs to the edge of the column, and the title below it is deliberately
+  oversized so type, not boxes, sets the section's scale.
+*/
+
+.section-header {
+  margin-bottom: var(--space-9);
+}
+
+.section-header__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.section-header__index {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.25rem;
+  height: 1.5rem;
+  padding-inline: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0;
+  color: var(--fg-inverse);
+  background: var(--accent);
+  border-radius: 0;
+  flex: none;
+}
+
+.section-header__main {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.section-header__title {
+  max-width: 16ch;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-black);
+  line-height: var(--lh-display);
+  letter-spacing: var(--track-display);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.section-header__lede {
+  max-width: 48ch;
+  color: var(--fg-muted);
+}
+
+@media (min-width: 64rem) {
+  .section-header {
+    margin-bottom: var(--space-10);
+  }
+
+  .section-header__meta::after {
+    content: '';
+    flex: 1;
+    height: var(--bw-heavy);
+    background: var(--border-fg);
+  }
+
+  .section-header__main {
+    /* Asymmetric: title leads, supporting copy sits in a narrower column. */
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-9);
+  }
+
+  .section-header__lede {
+    padding-bottom: 0.5rem;
+  }
+
+  .section-header__aside {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,136 +1,153 @@
 /*!
-  Contact Section - Phase 10
-  Premium editorial CTA + contact section
+  Contact — closing statement plus whatever real channels exist.
+
+  All values in data/contact.js are currently empty, so every channel is
+  filtered out rather than rendered as a dead link. When none survive, the
+  section shows an explicit note instead of pretending to be clickable.
 */
 
-import { useState, useEffect } from 'react';
-import { useScrollReveal } from '../hooks/useScrollReveal';
-import contactData from '../data/contact';
+import { useReveal } from '../hooks/useReveal';
+import contact from '../data/contact';
+import { scrollToSection } from '../lib/scroll';
 import './contact.css';
 
-function Contact() {
-  const [reducedMotion, setReducedMotion] = useState(
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
+/** Only keep channels that actually have a value to link to. */
+function buildChannels(data) {
+  const channels = [];
 
-  // Check for reduced motion preference
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = (e) => setReducedMotion(e.matches);
-    setReducedMotion(mq.matches);
-    mq.addEventListener('change', handleChange);
-    return () => mq.removeEventListener('change', handleChange);
-  }, []);
+  if (data.email) {
+    channels.push({
+      key: 'email',
+      label: 'Email',
+      value: data.email,
+      href: `mailto:${data.email}`,
+      external: false,
+    });
+  }
 
-  const { isVisible: contactVisible } = useScrollReveal({
-    distance: '0px',
-    origin: 'top',
-    threshold: 0.2,
-    once: true,
-  });
+  if (data.linkedin) {
+    channels.push({
+      key: 'linkedin',
+      label: 'LinkedIn',
+      value: 'Connect on LinkedIn',
+      href: data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`,
+      external: true,
+    });
+  }
 
-  useEffect(() => {
-    const contactInfo = document.querySelector('.contact-info');
-    if (contactInfo) {
-      contactInfo.style.animationPlayState = reducedMotion ? 'paused' : contactVisible ? 'running' : 'paused';
-    }
-  }, [reducedMotion, contactVisible]);
+  if (data.phone) {
+    channels.push({
+      key: 'phone',
+      label: 'Phone',
+      value: data.phone,
+      href: `tel:${data.phone.replace(/\s+/g, '')}`,
+      external: false,
+    });
+  }
 
-  const hasContactInfo = contactData.email || contactData.phone || contactData.linkedin;
+  return channels;
+}
+
+export default function Contact() {
+  const scopeRef = useReveal();
+  const channels = buildChannels(contact);
+  const hasChannels = channels.length > 0;
 
   return (
     <section
+      className="section contact"
       id="contact"
-      className="contact"
-      aria-labelledby="contact-heading"
-      role="region"
+      ref={scopeRef}
+      aria-labelledby="contact-title"
     >
-      <div className="contact-container">
-        <div className="contact-content">
-          <span className="contact-label">GET IN TOUCH</span>
-          <h2 id="contact-heading" className="contact-heading">
-            LET'S BUILD SOMETHING.
-          </h2>
-          <p className="contact-desc">
-            Have an opportunity, project, or idea worth exploring? Let's connect.
+      <div className="container">
+        <div className="contact__inner">
+          <p className="tech-label contact__label" data-reveal="up">
+            <span className="tech-label__index">06</span>
+            Contact
           </p>
+
+          <h2 className="contact__title" id="contact-title" data-reveal="up">
+            Let&rsquo;s build something worth shipping.
+          </h2>
+
+          <p className="lede contact__lede" data-reveal="up">
+            I&rsquo;m open to internships, entry-level roles, and collaborative builds.
+            If something here is relevant to you, I&rsquo;d like to hear about it.
+          </p>
+
+          {hasChannels ? (
+            <ul className="contact__channels" role="list">
+              {channels.map((channel) => (
+                <li key={channel.key} data-reveal="up">
+                  <a
+                    className="contact__channel"
+                    href={channel.href}
+                    {...(channel.external
+                      ? { target: '_blank', rel: 'noreferrer noopener' }
+                      : {})}
+                  >
+                    <span className="contact__channel-label mono">{channel.label}</span>
+                    <span className="contact__channel-value">{channel.value}</span>
+                    <svg
+                      className="contact__channel-arrow"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M2 7h10M8 3l4 4-4 4"
+                        stroke="currentColor"
+                        strokeWidth="1.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            /*
+              Honest empty state. The real values belong in src/data/contact.js
+              — this branch disappears the moment any of them is filled in.
+            */
+            <p className="contact__placeholder" data-reveal="up">
+              <span className="contact__placeholder-label mono">Direct channels</span>
+              Contact details have not been published here yet. Add them in
+              <code className="contact__code">src/data/contact.js</code> and they will
+              appear here automatically.
+            </p>
+          )}
+
+          <button
+            className="contact__back link-arrow"
+            type="button"
+            onClick={() => scrollToSection('home')}
+            data-reveal="up"
+          >
+            Back to top
+            <svg
+              className="link-arrow__icon"
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M7 12V2M3 6l4-4 4 4"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
-
-        {hasContactInfo && (
-          <div className="contact-info">
-            {contactData.email && (
-              <a
-                href={`mailto:${contactData.email}`}
-                className="contact-item"
-                aria-label={`Email Abhay Kumar`}
-              >
-                <span className="contact-item-label">EMAIL</span>
-                <span className="contact-item-value">{contactData.email}</span>
-                <svg
-                  className="contact-item-arrow"
-                  viewBox="0 0 24 24"
-                  focusable="false"
-                  aria-hidden="true"
-                >
-                  <path d="M7 10l5 5 5-5-1.4-1.4L14 10.6z" />
-                </svg>
-              </a>
-            )}
-
-            {contactData.phone && (
-              <a
-                href={`tel:${contactData.phone}`}
-                className="contact-item"
-                aria-label={`Phone Abhay Kumar`}
-              >
-                <span className="contact-item-label">PHONE</span>
-                <span className="contact-item-value">{contactData.phone}</span>
-                <svg
-                  className="contact-item-arrow"
-                  viewBox="0 0 24 24"
-                  focusable="false"
-                  aria-hidden="true"
-                >
-                  <path d="M7 10l5 5 5-5-1.4-1.4L14 10.6z" />
-                </svg>
-              </a>
-            )}
-
-            {contactData.linkedin && (
-              <a
-                href={contactData.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="contact-item"
-                aria-label="LinkedIn profile"
-              >
-                <span className="contact-item-label">LINKEDIN</span>
-                <span className="contact-item-value">
-                  {contactData.linkedin.replace('https://linkedin.com/in/', '')}
-                </span>
-                <svg
-                  className="contact-item-arrow"
-                  viewBox="0 0 24 24"
-                  focusable="false"
-                  aria-hidden="true"
-                >
-                  <path d="M7 10l5 5 5-5-1.4-1.4L14 10.6z" />
-                </svg>
-              </a>
-            )}
-          </div>
-        )}
-
-        {hasContactInfo && (
-          <div className="contact-cta">
-            <a href="#contact" className="cta-button" data-magnetic>
-              GET IN TOUCH
-            </a>
-          </div>
-        )}
       </div>
     </section>
   );
 }
-
-export default Contact;
