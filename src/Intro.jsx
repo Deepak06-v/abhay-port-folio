@@ -47,13 +47,6 @@ export default function Intro() {
       const abhayEl = root.querySelector('.preloader__word--abhay');
       const buildsEl = root.querySelector('.preloader__word--builds');
 
-      if (abhayEl) {
-        abhayEl.style.transform = 'translate(-50%, -50%)';
-      }
-      if (buildsEl) {
-        buildsEl.style.transform = 'translate(-50%, -50%)';
-      }
-
       // Subtle entrance: fade in with gentle translateY and letter-spacing
       // Using power3.inOut for sophisticated easing (not bounce/pop)
       if (abhayEl || buildsEl) {
@@ -167,20 +160,23 @@ export default function Intro() {
           className="preloader__brand"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: 'clamp(3rem, 8vw, 5rem)',
+            fontSize: 'clamp(2rem, 7vw, 4rem)',
             fontWeight: 800,
             letterSpacing: '-0.02em',
             textTransform: 'uppercase',
             lineHeight: 1,
             whiteSpace: 'nowrap',
-            position: 'relative',
+            position: 'fixed',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
             display: 'flex',
             justifyContent: 'center',
           }}
         >
           <span
             className="preloader__word preloader__word--abhay"
-            style={{ marginRight: 'clamp(2rem, 5vw, 4rem)' }}
+            style={{ marginRight: 'clamp(1rem, 4vw, 3rem)' }}
           >
             ABHAY
           </span>
